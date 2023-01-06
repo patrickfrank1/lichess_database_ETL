@@ -15,11 +15,11 @@ def process_file(url):
     """python function for airflow dag. takes a url who's file has been downloaded and loads data into database"""
     DAG_PATH = os.path.realpath(__file__)
     DAG_PATH = '/' + '/'.join(DAG_PATH.split('/')[1:-1]) + '/'
-    DB_NAME = os.getenv('POSTGRESQL_DATABASE', 'lichess_games') #env variables come from docker-compose.yml
-    DB_USER = os.getenv('POSTGRESQL_USERNAME','username')
-    DB_PASSWORD = os.getenv('POSTGRESQL_PASSWORD','password')
+    DB_NAME = os.getenv('POSTGRES_DB', 'lichess_games') #env variables come from docker-compose.yml
+    DB_USER = os.getenv('POSTGRES_USER','postgres')
+    DB_PASSWORD = os.getenv('POSTGRES_PASSWORD','postgres')
     HOSTNAME = os.getenv('HOSTNAME','localhost')
-    PORT = os.getenv('POSTGRESQL_PORT', '5432')
+    PORT = os.getenv('POSTGRES_PORT', '5432')
     BATCH_SIZE = int(os.getenv('BATCH_SIZE', 10000))
     connect_string = "host=" + HOSTNAME + " dbname=" + DB_NAME + " user=" + DB_USER + " password=" + DB_PASSWORD \
             + " port=" + PORT
@@ -35,15 +35,15 @@ def process_file(url):
         data_path = DAG_PATH #+"../lichess_data/"
         filename = url.split('/')[-1]
         filepath = data_path + filename
-        lines = read_lines(filepath)
+        os.system(f"zstdcat {filepath} > {filepath[:-4]}")
+        lines = read_lines_plain(filepath[:-4])
         for line in tqdm(lines):
             if len(line) <= 1: continue
-            line = line.decode('utf-8')
             if line == '\n' or line[0] == ' ': continue
             try:
                 key = re.search("\[(.*?) ",line).group(1)
                 val = re.search(" \"(.*?)\"\]", line).group(1)
-                if key in ("Date", "Round", "Opening"): continue    #skip irrelevant data (adjust if you prefer) 
+                if key in ("Date", "Round", "Opening", "WhiteTitle", "BlackTitle"): continue    #skip irrelevant data (adjust if you prefer) 
                 if key not in games_columns + ["UTCDate", "UTCTime"]: continue   #if some unforseen data type not in table, skip it
                 if key in ("White", "Black"):
                     (val, id_dict, new_id_dict) = assign_user_ID(val, id_dict, new_id_dict)   #converts username to user ID and updates id_dict
@@ -68,6 +68,7 @@ def process_file(url):
                     dump_dict(new_id_dict, conn)
                     batch = []
                     new_id_dict = {}
+        os.system(f"rm {filepath[:-4]}")
     except (Exception, KeyboardInterrupt) as e:
         #on consumer shutdown, write remaining games data and id_dict values to database
         print(f"{e} exception raised, writing id_dict to database")
@@ -77,4 +78,4 @@ def process_file(url):
 
 
 if __name__ == "__main__":
-    process_file("https://database.lichess.org/standard/lichess_db_standard_rated_2017-04.pgn.bz2")
+    process_file("https://database.lichess.org/standard/lichess_db_standard_rated_2013-01.pgn.zst")

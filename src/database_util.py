@@ -14,9 +14,8 @@ def initialize_tables(conn):
             "BlackElo SMALLINT NOT NULL", "WhiteRatingDiff SMALLINT NOT NULL", 
             "BlackRatingDiff SMALLINT NOT NULL", 
             "ECO VARCHAR(3) NOT NULL", "TimeControl SMALLINT NOT NULL", 
-            "Termination VARCHAR(1) NOT NULL", "BlackTitle VARCHAR(3)", 
-            "WhiteTitle VARCHAR(3)", "Analyzed BOOLEAN NOT NULL", 
-            "Date_time timestamp NOT NULL"])
+            "Termination VARCHAR(1) NOT NULL", "Analyzed BOOLEAN NOT NULL", 
+            "Date_time date NOT NULL"])
     cur.execute(
             "CREATE TABLE IF NOT EXISTS games (" + ', '.join(games_columns) + ");"
             )

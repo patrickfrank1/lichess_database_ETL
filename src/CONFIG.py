@@ -1,4 +1,4 @@
-DB_NAME = 'lichess_games_db'
-DB_USER = 'username'
-DB_PASSWORD = 'password'
+DB_NAME = 'lichess_games'
+DB_USER = 'postgres'
+DB_PASSWORD = 'postgres'
 BATCH_SIZE = 10000

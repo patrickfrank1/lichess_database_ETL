@@ -3,6 +3,12 @@ from collections import OrderedDict
 from bz2 import BZ2File as bzopen
 import re
 
+def read_lines_plain(file):
+    """takes a bzip file path and returns a generator that yields each line in the file"""
+    with open(file,"r") as fin:
+        for i, line in enumerate(fin):
+            yield line
+
 def read_lines(bzip_file):
     """takes a bzip file path and returns a generator that yields each line in the file"""
     with bzopen(bzip_file,"r") as bzfin:
@@ -100,10 +106,10 @@ def format_game(game):
             return {}   #throw out the game if any player is "anonymous" with no rating
     except KeyError:
         return {}
-    if "WhiteTitle" not in game:
-        game["WhiteTitle"] = None
-    if "BlackTitle" not in game:
-        game["BlackTitle"] = None
+    if "WhiteTitle" in game:
+        del game["WhiteTitle"]
+    if "BlackTitle" in game:
+        del game["BlackTitle"]
     game = merge_datetime(game)
     return OrderedDict(sorted(game.items()))
 

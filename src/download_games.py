@@ -17,6 +17,7 @@ def urlopen_retry(url):
 def download_file(url, years_to_download=None, chunk_size=16*1024):
     DAG_PATH = os.path.realpath(__file__)
     DAG_PATH = '/' + '/'.join(DAG_PATH.split('/')[1:-1]) + '/'
+    print(DAG_PATH)
     #Path('../lichess_data').mkdir(exist_ok=True)
     filename = url.split("/")[-1]
     year = int(filename.split("_")[-1][:4])
@@ -40,7 +41,7 @@ def download_file(url, years_to_download=None, chunk_size=16*1024):
 if __name__ == "__main__":
     urls = []
     with open("download_links.txt","r") as url_f:
-        years_to_download = [2018, 2019]    #limited to 2018/2019 to save disk space
+        years_to_download = [2013, 2018, 2019]    #limited to 2018/2019 to save disk space
         for line in url_f:
             line = line.replace("\n","")
             urls.append(line)

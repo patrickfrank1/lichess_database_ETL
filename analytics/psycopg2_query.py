@@ -28,14 +28,14 @@ def select_query(sql_list, conn, filenames=None):
 
 
 if __name__ == "__main__":
-    DB_NAME = os.getenv('POSTGRESQL_DATABASE', 'lichess_games_db') #env variables come from docker-compose.yml
+    DB_NAME = os.getenv('POSTGRESQL_DATABASE', 'lichess_games') #env variables come from docker-compose.yml
     DB_USER = os.getenv('POSTGRESQL_USERNAME','username')
     DB_PASSWORD = os.getenv('POSTGRESQL_PASSWORD','password')
     HOSTNAME = os.getenv('HOSTNAME','localhost')
     PORT = os.getenv('POSTGRESQL_PORT', '5432')
     #connect_string = "host=" + HOSTNAME + " dbname=" + DB_NAME + " user=" + DB_USER + " password=" + DB_PASSWORD \
     #        + " port=" + PORT
-    connect_string = "dbname=lichess_games_db user=joe password=password"
+    connect_string = "dbname=lichess_games user=joe password=password"
     conn = psycopg2.connect(connect_string)
 
     queries = []
