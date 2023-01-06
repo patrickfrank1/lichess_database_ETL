@@ -21,12 +21,12 @@ if __name__ == "__main__":
     # download files
     urls = []
     with open("download_links.txt","r") as url_f:
-        years_to_download = [2013, 2018, 2019]    #limited to 2018/2019 to save disk space
+        years_to_download = [2013, 2014, 2015, 2016, 2017, 2018, 2019]    #limited to 2018/2019 to save disk space
         for line in url_f:
             line = line.replace("\n","")
             urls.append(line)
     urls = reversed(urls)   #read the links from oldest to newest
-    with ThreadPool(processes=8) as p:
+    with ThreadPool(processes=14) as p:
         results = [p.apply_async(download_and_process_file, (url, years_to_download)) for url in urls]
         for r in results:
             print(r.get())
