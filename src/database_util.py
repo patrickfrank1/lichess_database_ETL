@@ -8,16 +8,24 @@ def initialize_tables(conn):
     #setup database tables. database name and user is configured in CONFIG.py
     cur = conn.cursor()
     #sort columns alphabetically for the copy_from method used to insert rows later
-    games_columns = sorted(["Event VARCHAR(1) NOT NULL", "Site VARCHAR(8) PRIMARY KEY", 
-            "White INT NOT NULL", "Black INT NOT NULL", 
-            "Result VARCHAR(1) NOT NULL", "WhiteElo SMALLINT NOT NULL", 
-            "BlackElo SMALLINT NOT NULL", "WhiteRatingDiff SMALLINT NOT NULL", 
-            "BlackRatingDiff SMALLINT NOT NULL", 
-            "ECO VARCHAR(3) NOT NULL", "TimeControl SMALLINT NOT NULL", 
-            "Termination VARCHAR(1) NOT NULL", "Analyzed BOOLEAN NOT NULL", 
-            "Date_time date NOT NULL"])
+    games_columns = sorted([
+        "Event VARCHAR(1) NOT NULL",
+        "White INT NOT NULL",
+        "Black INT NOT NULL", 
+        "Result VARCHAR(1) NOT NULL",
+        "WhiteElo SMALLINT NOT NULL", 
+        "BlackElo SMALLINT NOT NULL",
+        "WhiteRatingDiff SMALLINT NOT NULL", 
+        "BlackRatingDiff SMALLINT NOT NULL", 
+        "ECO SMALLINT NOT NULL",
+        "TimeControl SMALLINT NOT NULL", 
+        "Termination VARCHAR(1) NOT NULL",
+        "Analyzed BOOLEAN NOT NULL", 
+        "Date_time date NOT NULL"
+    ])
+    PK = sorted(["White", "Black", "WhiteElo", "BlackElo", "WhiteRatingDiff","BlackRatingDiff"])
     cur.execute(
-            "CREATE TABLE IF NOT EXISTS games (" + ', '.join(games_columns) + ");"
+            f"CREATE TABLE IF NOT EXISTS games ({', '.join(games_columns)}, PRIMARY KEY ({', '.join(PK)}));"
             )
     cur.execute(
             """

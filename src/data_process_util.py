@@ -72,6 +72,14 @@ def format_data(key, val):
             val = 'B'
         else:
             val = '?'
+    elif key == "ECO":
+        try:
+            val = ord(val[0])*100 + int(val[1:])
+        except:
+            try:
+                val = ord(val[0])*100
+            except:
+                val = 0
     return (key, val)
 
 def merge_datetime(game):

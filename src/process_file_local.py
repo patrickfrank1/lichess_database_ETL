@@ -20,7 +20,7 @@ def process_file(url):
     DB_PASSWORD = os.getenv('POSTGRES_PASSWORD','postgres')
     HOSTNAME = os.getenv('HOSTNAME','localhost')
     PORT = os.getenv('POSTGRES_PORT', '5432')
-    BATCH_SIZE = int(os.getenv('BATCH_SIZE', 10000))
+    BATCH_SIZE = int(os.getenv('BATCH_SIZE', 100000))
     connect_string = "host=" + HOSTNAME + " dbname=" + DB_NAME + " user=" + DB_USER + " password=" + DB_PASSWORD \
             + " port=" + PORT
     conn = psycopg2.connect(connect_string)
@@ -68,6 +68,10 @@ def process_file(url):
                     dump_dict(new_id_dict, conn)
                     batch = []
                     new_id_dict = {}
+        # write remaining games data and id_dict values to database
+        copy_data(conn, batch, "games")
+        dump_dict(new_id_dict, conn)
+        # delete file after processing
         os.system(f"rm {filepath[:-4]}")
     except (Exception, KeyboardInterrupt) as e:
         #on consumer shutdown, write remaining games data and id_dict values to database

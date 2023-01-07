@@ -15,14 +15,14 @@ services:
   #     stdin_open: true
   #     tty: true
   postgresql-chess:
-    image: postgres:12
+    image: postgres:14
     environment:
       - POSTGRES_DB=lichess_games
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
     volumes:
-      - ./db-2019:/var/lib/postgresql/data
-#      - /media/pafrank/Backup/db-2019:/var/lib/postgresql/data
+      - ./db-2013:/var/lib/postgresql/data
+#      - /media/pafrank/Backup/db-2013:/var/lib/postgresql/data
     ports:
       - 5432:5432
 

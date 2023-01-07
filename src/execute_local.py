@@ -8,8 +8,6 @@ def download_and_process_file(url, years_to_download):
     _, success = download_file(url, years_to_download)
     if success:
         process_file(url)
-        filepath = DAG_PATH + url.split("/")[-1]
-        os.remove(filepath)
         return (url, True)
     return (url, False)
 
@@ -20,7 +18,7 @@ if __name__ == "__main__":
 
     # download files
     urls = []
-    with open("download_links.txt","r") as url_f:
+    with open(os.getenv('DOWNLOAD_LINKS', 'download_links.txt'),"r") as url_f:
         years_to_download = [2013, 2014, 2015, 2016, 2017, 2018, 2019]    #limited to 2018/2019 to save disk space
         for line in url_f:
             line = line.replace("\n","")
