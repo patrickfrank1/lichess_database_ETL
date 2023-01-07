@@ -21,7 +21,8 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
     volumes:
-      - /media/pafrank/Backup/db-2014:/var/lib/postgresql/data
+      - ./db-2019:/var/lib/postgresql/data
+#      - /media/pafrank/Backup/db-2019:/var/lib/postgresql/data
     ports:
       - 5432:5432
 

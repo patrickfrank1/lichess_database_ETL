@@ -26,9 +26,7 @@ if __name__ == "__main__":
             line = line.replace("\n","")
             urls.append(line)
     urls = reversed(urls)   #read the links from oldest to newest
-    with ThreadPool(processes=14) as p:
-        results = [p.apply_async(download_and_process_file, (url, years_to_download)) for url in urls]
-        for r in results:
-            print(r.get())
+    for url in urls:
+        download_and_process_file(url, years_to_download)
 
 # for 2013 games: 900mb for 3.3m games --> too much, reduce footprint!
