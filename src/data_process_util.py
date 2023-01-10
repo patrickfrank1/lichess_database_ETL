@@ -3,11 +3,20 @@ from collections import OrderedDict
 from bz2 import BZ2File as bzopen
 import re
 
-def read_lines_plain(file):
+def number_lines(file):
+    """takes a file path and returns the number of lines in the file"""
+    with open(file,"r") as fin:
+        for i, line in enumerate(fin):
+            pass
+    return i+1
+
+def read_lines_plain(file, start=0, batch_size=100000):
     """takes a bzip file path and returns a generator that yields each line in the file"""
     with open(file,"r") as fin:
         for i, line in enumerate(fin):
+            if i < start: continue
             yield line
+            if i >= start + batch_size: break
 
 def read_lines(bzip_file):
     """takes a bzip file path and returns a generator that yields each line in the file"""
@@ -16,16 +25,13 @@ def read_lines(bzip_file):
         for i, line in enumerate(bzfin):
             yield line
 
-def assign_user_ID(username, id_dict, new_id_dict):
+def assign_user_ID(offset, batch_size, username, id_dict, new_id_dict):
     """takes a username and gets the ID or assigns a new one if not already in id_dict
     returns the ID and id_dict (with the new ID added if a new one was added)
     if a new id was added, it will be added to new_id_dict"""
     if username in id_dict:
         return id_dict[username], id_dict, new_id_dict
-    elif len(id_dict) == 0:
-        ID = 1
-    else:
-        ID = max(id_dict.values()) + 1
+    ID = max([offset] + [id for id in id_dict.values() if offset <= id < offset+2*batch_size]) + 1
     id_dict[username] = ID
     new_id_dict[username] = ID
     return ID, id_dict, new_id_dict
@@ -49,8 +55,6 @@ def format_data(key, val):
         val = datetime.strptime(val, '%Y.%m.%d').date()
     elif key == "UTCTime":
         val = datetime.strptime(val, '%H:%M:%S').time()
-    elif key == "Site":
-        val = re.search("org/(.*)", val).group(1)
     elif key in ("WhiteRatingDiff", "BlackRatingDiff", "WhiteElo", "BlackElo"):
         if "?" in val:  #if any player is "anonymous" or has provisional rating, 
             val = None  #elo data will be NULL. this will trigger the game to be thrown out
