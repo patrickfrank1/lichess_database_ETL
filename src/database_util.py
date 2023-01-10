@@ -3,6 +3,24 @@ import psycopg2
 import psycopg2.extras
 import io
 
+def get_columns():
+    """returns a list of columns in the games table"""
+    return [
+        "Event",
+        "White",
+        "Black",
+        "Result",
+        "WhiteElo",
+        "BlackElo",
+        "WhiteRatingDiff",
+        "BlackRatingDiff",
+        "ECO",
+        "TimeControl",
+        "Termination",
+        "Analyzed",
+        "Date_time"
+    ]
+
 def initialize_tables(conn):
     """creates a games and user_ids table in postgresql if they do not already exist"""
     #setup database tables. database name and user is configured in CONFIG.py
