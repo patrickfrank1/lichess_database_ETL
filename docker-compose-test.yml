@@ -21,7 +21,6 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
     volumes:
-      - ./db-2013:/var/lib/postgresql/data
-#      - /media/pafrank/Backup/db-2013:/var/lib/postgresql/data
+      - ./db-test:/var/lib/postgresql/data
     ports:
       - 5433:5432
