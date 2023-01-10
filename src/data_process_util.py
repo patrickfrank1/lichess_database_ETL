@@ -2,6 +2,7 @@ from datetime import datetime
 from collections import OrderedDict
 from bz2 import BZ2File as bzopen
 import re
+import random
 
 def number_lines(file):
     """takes a file path and returns the number of lines in the file"""
@@ -31,7 +32,9 @@ def assign_user_ID(offset, batch_size, username, id_dict, new_id_dict):
     if a new id was added, it will be added to new_id_dict"""
     if username in id_dict:
         return id_dict[username], id_dict, new_id_dict
-    ID = max([offset] + [id for id in id_dict.values() if offset <= id < offset+2*batch_size]) + 1
+    ID = random.randint(-2147483648, 2147483647)
+    while ID in id_dict.values():
+        ID = random.randint(-2147483648, 2147483647)
     id_dict[username] = ID
     new_id_dict[username] = ID
     return ID, id_dict, new_id_dict

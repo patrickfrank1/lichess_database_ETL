@@ -41,7 +41,7 @@ def initialize_tables(conn):
         "Analyzed BOOLEAN NOT NULL", 
         "Date_time date NOT NULL"
     ])
-    PK = sorted(["White", "Black", "WhiteElo", "BlackElo", "WhiteRatingDiff","BlackRatingDiff"])
+    PK = sorted(["White", "Black", "WhiteElo", "BlackElo", "WhiteRatingDiff","BlackRatingDiff", "ECO", "TimeControl"])
     cur.execute(
             f"CREATE TABLE IF NOT EXISTS games ({', '.join(games_columns)}, PRIMARY KEY ({', '.join(PK)}));"
             )
@@ -60,8 +60,10 @@ def copy_data(conn, batch, table, retry=False):
     try:
         cur = conn.cursor()
         csv_object = io.StringIO()
+        number_columns = len(get_columns())
         for item in batch:
-            csv_object.write('|'.join(map(csv_format, item.values())) + '\n')
+            if len(item.values()) == number_columns:
+                csv_object.write('|'.join(map(csv_format, item.values())) + '\n')
         csv_object.seek(0)
         try:
             cur.copy_from(csv_object, table, sep='|')
@@ -76,6 +78,7 @@ def copy_data(conn, batch, table, retry=False):
             raise InFailedSqlTransaction
 
 def copy_conflict(csv_object, conn, table):
+    print(f"conflict")
     csv_object.seek(0)
     conn.rollback()
     cur = conn.cursor()

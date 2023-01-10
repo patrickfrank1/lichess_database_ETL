@@ -17,9 +17,9 @@ def process_batch(connect_string, games_columns, filename, file_number, start, b
 	batch = []  #database writes are done in batches to minimize server roundtrips
 	game = OrderedDict()
 	id_dict = load_id_dict(conn)    #load dict to assign user IDs to usernames
-	print(id_dict)
 	new_id_dict = {}
 	lines = read_lines_plain(filename, start=start, batch_size=batch_size)
+
 	try: #if any exception, write the id_dict to "user_IDs" database table to record new user_IDs before raising error
 		for line in tqdm(lines):
 			if len(line) <= 1: continue
@@ -51,8 +51,8 @@ def process_batch(connect_string, games_columns, filename, file_number, start, b
 		try:
 			copy_data(conn, batch, "games")
 			dump_dict(new_id_dict, conn)
-		except Exception:
-			print("error writing to database, file {file_number}, start {start}")
+		except Exception as e:
+			print(e)
 			return 1
 		return 0
 	except (Exception, KeyboardInterrupt) as e: #on consumer shutdown, write remaining games data and id_dict values to database
@@ -67,12 +67,13 @@ def process_file(url):
 	"""python function for airflow dag. takes a url who's file has been downloaded and loads data into database"""
 	DAG_PATH = os.path.realpath(__file__)
 	DAG_PATH = '/' + '/'.join(DAG_PATH.split('/')[1:-1]) + '/'
+	DAG_PATH = "/media/pafrank/Backup/other/Chess/lichess/database.lichess.org/standard/"
 	DB_NAME = os.getenv('POSTGRES_DB', 'lichess_games') #env variables come from docker-compose.yml
 	DB_USER = os.getenv('POSTGRES_USER','postgres')
 	DB_PASSWORD = os.getenv('POSTGRES_PASSWORD','postgres')
 	HOSTNAME = os.getenv('HOSTNAME','localhost')
 	PORT = os.getenv('POSTGRES_PORT', '5432')
-	BATCH_SIZE = int(os.getenv('BATCH_SIZE', 10000))
+	BATCH_SIZE = int(os.getenv('BATCH_SIZE', 100000))
 	connect_string = "host=" + HOSTNAME + " dbname=" + DB_NAME + " user=" + DB_USER + " password=" + DB_PASSWORD \
 			+ " port=" + PORT
 	conn = psycopg2.connect(connect_string)  
@@ -86,11 +87,12 @@ def process_file(url):
 	n_lines = number_lines(filepath[:-4])
 	partitions_start = [i*BATCH_SIZE for i in range(n_lines//BATCH_SIZE)]
 	print(file_number, partitions_start)
-	#with ThreadPool(processes=2) as p:
-	#	results = [p.apply(process_batch, (conn, games_columns, filename, file_number, start, BATCH_SIZE)) for start in partitions_start]
-	#print(results)
-	for start in partitions_start:
-		process_batch(connect_string, games_columns, filepath[:-4], file_number, start, BATCH_SIZE)
+	with ThreadPool(processes=2) as p:
+		results = [p.apply_async(process_batch, (connect_string, games_columns, filepath[:-4], file_number, start, BATCH_SIZE)) for start in partitions_start]
+		for r in results:
+			print(r.get())
+	# for start in partitions_start:
+	# 	process_batch(connect_string, games_columns, filepath[:-4], file_number, start, BATCH_SIZE)
 	os.system(f"rm {filepath[:-4]}")
 
 if __name__ == "__main__":

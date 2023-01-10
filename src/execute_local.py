@@ -6,8 +6,7 @@ from process_file_local import process_file
 from database_util import *
 
 def download_and_process_file(url, years_to_download):
-    #_, success = download_file(url, years_to_download)
-    success = True
+    _, success = download_file(url, years_to_download)
     if success:
         process_file(url)
         return (url, True)
@@ -17,7 +16,7 @@ def download_and_process_file(url, years_to_download):
 if __name__ == "__main__":
     DAG_PATH = os.path.realpath(__file__)
     DAG_PATH = '/' + '/'.join(DAG_PATH.split('/')[1:-1]) + '/'
-
+    DAG_PATH = "/media/pafrank/Backup/other/Chess/lichess/database.lichess.org/standard/"
     # download files
     urls = []
     with open(os.getenv('DOWNLOAD_LINKS', 'extract_links.txt'),"r") as url_f:
@@ -35,7 +34,8 @@ if __name__ == "__main__":
             + " port=" + PORT
     conn = psycopg2.connect(connect_string)
     _ = initialize_tables(conn)
-    with ThreadPool(processes=2) as p:
-        results = [p.apply_async(process_file, (url,)) for url in urls]
-        for r in results:
-            print(r.get())
+    [print(process_file(url)) for url in urls]
+    # with ThreadPool(processes=2) as p:
+    #     results = [p.apply_async(process_file, (url,)) for url in urls]
+    #     for r in results:
+    #         print(r.get())
