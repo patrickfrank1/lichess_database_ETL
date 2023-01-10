@@ -6,7 +6,8 @@ from process_file_local import process_file
 from database_util import *
 
 def download_and_process_file(url, years_to_download):
-    _, success = download_file(url, years_to_download)
+    #_, success = download_file(url, years_to_download)
+    success = True
     if success:
         process_file(url)
         return (url, True)
@@ -34,7 +35,7 @@ if __name__ == "__main__":
             + " port=" + PORT
     conn = psycopg2.connect(connect_string)
     _ = initialize_tables(conn)
-    with ThreadPool(processes=4) as p:
+    with ThreadPool(processes=2) as p:
         results = [p.apply_async(process_file, (url,)) for url in urls]
         for r in results:
             print(r.get())
