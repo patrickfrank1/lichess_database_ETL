@@ -49,7 +49,7 @@ def process_batch(connect_string, games_columns, filename, file_number, start, b
 				game = OrderedDict()   #reset game dict variable for the next set of game data
 		# write games data and id_dict values to database
 		try:
-			copy_data(conn, batch, "games")
+			copy_data(conn, batch, "games", get_columns())
 			dump_dict(new_id_dict, conn)
 		except Exception as e:
 			print(e)
@@ -59,7 +59,7 @@ def process_batch(connect_string, games_columns, filename, file_number, start, b
 		print(f"{e} exception raised, writing id_dict to database")
 		traceback.print_exc()
 		dump_dict(id_dict, conn)
-		copy_data(conn, batch, "games")
+		copy_data(conn, batch, "games", get_columns())
 		return 1
 
 
@@ -87,7 +87,7 @@ def process_file(url):
 	n_lines = number_lines(filepath[:-4])
 	partitions_start = [i*BATCH_SIZE for i in range(n_lines//BATCH_SIZE)]
 	print(file_number, partitions_start)
-	with ThreadPool(processes=2) as p:
+	with ThreadPool(processes=12) as p:
 		results = [p.apply_async(process_batch, (connect_string, games_columns, filepath[:-4], file_number, start, BATCH_SIZE)) for start in partitions_start]
 		for r in results:
 			print(r.get())
